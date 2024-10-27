@@ -1,10 +1,10 @@
 "use strict";
-function addTask() {
-  const task = document.querySelector(".task");
-  const container = document.querySelector(".container");
-  const plan = document.querySelector(".plan");
-  const search = document.querySelector(".search").value;
+const task = document.querySelector(".task");
+const container = document.querySelector(".container");
+function addTask(item) {
   const input = document.createElement("input");
+  const plan = document.querySelector(".plan");
+  const search = item || document.querySelector(".search").value;
   input.value = search;
   input.disabled = true;
   input.setAttribute("spellcheck", "false");
@@ -41,6 +41,7 @@ function addTask() {
 
   container.appendChild(li);
   document.querySelector(".search").value = "";
+  saveTasks();
 
   edit.addEventListener("click", () => {
     if (edit.textContent === "Edit") {
@@ -50,10 +51,12 @@ function addTask() {
     } else {
       input.disabled = true;
       edit.textContent = "Edit";
+      saveTasks();
     }
   });
   clear.addEventListener("click", () => {
     li.remove();
+    saveTasks();
   });
 }
 function handleKeyPress(e) {
@@ -63,3 +66,19 @@ function handleKeyPress(e) {
 }
 document.querySelector(".search").addEventListener("keydown", handleKeyPress);
 document.querySelector(".search").setAttribute("spellcheck", "false");
+function saveTasks() {
+  const tasks = Array.from(container.querySelectorAll("input"))
+    .map((input) => input.value)
+    .filter((value) => value.trim() !== "");
+  if (tasks.length) {
+    localStorage.setItem("item", JSON.stringify(tasks));
+  } else {
+    localStorage.removeItem("item");
+  }
+}
+function loadTasks() {
+  const loadTask = localStorage.getItem("item");
+  const data = JSON.parse(loadTask);
+  if (data) data.forEach((item) => addTask(item));
+}
+window.addEventListener("load", loadTasks);
